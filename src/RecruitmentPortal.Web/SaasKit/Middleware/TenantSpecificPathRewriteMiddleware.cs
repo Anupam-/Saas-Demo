@@ -38,7 +38,7 @@ namespace RecruitmentPortal.Web.SaasKit.Middleware
                 //build out the new string
                 var newPath = new PathString($"/tenant/{tenantFolder}/{filePath}");
                 //if the new file doesn't exist, fall back to core
-                var f = _env.WebRootPath + newPath;
+                var f = _env.WebRootPath + newPath; 
                 if (!File.Exists(f))
                 {
                     newPath = new PathString($"/core/{filePath}");
