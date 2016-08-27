@@ -7,6 +7,7 @@ using RecruitmentPortal.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RecruitmentPortal.Web.Data
@@ -50,14 +51,21 @@ namespace RecruitmentPortal.Web.Data
                     AppTenantId = 1,
                     Email = "foobar3@outlook.com",
                     UserName = "foobar3",
-                    EmailConfirmed = true
+                    EmailConfirmed = true,
+                    NormalizedUserName = "FOOBAR3",
+                    NormalizedEmail = "FOOBAR3@OUTLOOK.COM"
                 };
 
-                
-                if(!context.Users.Any(u => u.Email == admin.Email))
+
+                if (!context.Users.Any(u => u.Email == admin.Email))
                 {
-                    var userManager = provider.GetRequiredService<UserManager<ApplicationUser>>();
-                    await userManager.CreateAsync(admin, "Helpme123#");
+                    var userStore = new TenantEnabledUserStore(context, new AppTenant
+                    {
+                        AppTenantId = 1
+                    });
+                    await userStore.SetPasswordHashAsync(admin, new PasswordHasher<ApplicationUser>().HashPassword(admin, "Helpme123#"), default(CancellationToken));
+                    await userStore.SetSecurityStampAsync(admin, Guid.NewGuid().ToString("D"), default(CancellationToken));
+                    await userStore.CreateAsync(admin, default(CancellationToken));
                 }
                 
                 context.SaveChanges();
