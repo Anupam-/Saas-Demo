@@ -73,7 +73,7 @@ namespace RecruitmentPortal.Identity
             {
                 await _context.SaveChangesAsync();
             }
-            catch(DbUpdateConcurrencyException ex)
+            catch
             {
                 return IdentityResult.Failed();
             }

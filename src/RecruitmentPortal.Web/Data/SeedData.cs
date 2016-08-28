@@ -19,6 +19,13 @@ namespace RecruitmentPortal.Web.Data
             using (var context = new ApplicationDbContext(
                 provider.GetRequiredService<DbContextOptions<ApplicationDbContext>>()))
             {
+                if(!context.ServicePlans.Any())
+                {
+                    context.ServicePlans.Add(new ServicePlan{ Name = "Basic"});
+                    context.ServicePlans.Add(new ServicePlan{ Name = "Professionell"});
+                }
+                await context.SaveChangesAsync();
+
                 if (!context.Tenants.Any())
                 {
                     context.Tenants.AddRange(
@@ -26,16 +33,19 @@ namespace RecruitmentPortal.Web.Data
                         {
                             Name = "ACME",
                             Subdomain = "acme",
-                            Folder = "acme"
+                            Folder = "acme",
+                            ServicePlanId = 1
                         },
                         new AppTenant
                         {
                             Name = "DevTenant 1",
                             Subdomain = "dev",
-                            Folder = "dev"
+                            Folder = "dev",
+                            ServicePlanId = 2
                         });
                 }
 
+                await context.SaveChangesAsync();
                 var roleStore = new RoleStore<IdentityRole>(context);
                 foreach (var role in new string[] { "Owner", "Administrator", "Manager", "Editor", "Applicant", "HR" })
                 {
@@ -44,11 +54,11 @@ namespace RecruitmentPortal.Web.Data
                         await roleStore.CreateAsync(new IdentityRole(role));
                     }
                 }
-                context.SaveChanges();
-                
+
+                await context.SaveChangesAsync();
                 var admin = new ApplicationUser
                 {
-                    AppTenantId = 1,
+                    AppTenantId = 3,
                     Email = "foobar3@outlook.com",
                     UserName = "foobar3",
                     EmailConfirmed = true,

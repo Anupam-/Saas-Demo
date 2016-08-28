@@ -10,12 +10,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RecruitmentPortal.Web.Data;
-using RecruitmentPortal.Web.Models;
 using RecruitmentPortal.Web.Services;
 using RecruitmentPortal.Web.SaasKit;
 using RecruitmentPortal.Identity;
 using Microsoft.AspNetCore.Routing;
 using RecruitmentPortal.Web.SaasKit.Middleware;
+using RecruitmentPortal.Identity.Claims;
 
 namespace RecruitmentPortal.Web
 {
@@ -63,7 +63,7 @@ namespace RecruitmentPortal.Web
                 //.AddUserManager<TenantEnabledUserManager<ApplicationUser>>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
-
+            
             services.AddMvc();
 
             // Add application services.
@@ -106,7 +106,11 @@ namespace RecruitmentPortal.Web
 
             app.UseStaticFiles();
             app.UseIdentity();
-
+            //add claims transformation to read serviceplan
+            app.UseClaimsTransformation(new ClaimsTransformationOptions
+            {
+                Transformer = new ServicePlanClaimsTransformer()
+            });
             // Add external authentication middleware below. To configure them please see http://go.microsoft.com/fwlink/?LinkID=532715
 
             app.UseMvc(routes =>

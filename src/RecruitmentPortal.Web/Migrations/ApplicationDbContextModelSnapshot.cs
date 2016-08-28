@@ -3,16 +3,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
-using RecruitmentPortal.Web.Data;
 using RecruitmentPortal.Identity;
 
-namespace RecruitmentPortal.Web.Data.Migrations
+namespace RecruitmentPortal.Web.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20160813100116_AddedTenantsEntity")]
-    partial class AddedTenantsEntity
+    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     {
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.0.0-rtm-21431")
@@ -125,11 +123,13 @@ namespace RecruitmentPortal.Web.Data.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("RecruitmentPortal.Web.Models.ApplicationUser", b =>
+            modelBuilder.Entity("RecruitmentPortal.Identity.ApplicationUser", b =>
                 {
                     b.Property<string>("Id");
 
                     b.Property<int>("AccessFailedCount");
+
+                    b.Property<int>("AppTenantId");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken();
@@ -138,6 +138,10 @@ namespace RecruitmentPortal.Web.Data.Migrations
                         .HasAnnotation("MaxLength", 256);
 
                     b.Property<bool>("EmailConfirmed");
+
+                    b.Property<string>("FirstName");
+
+                    b.Property<string>("LastName");
 
                     b.Property<bool>("LockoutEnabled");
 
@@ -164,6 +168,8 @@ namespace RecruitmentPortal.Web.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AppTenantId");
+
                     b.HasIndex("NormalizedEmail")
                         .HasName("EmailIndex");
 
@@ -174,18 +180,37 @@ namespace RecruitmentPortal.Web.Data.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
-            modelBuilder.Entity("RecruitmentPortal.Web.Models.AppTenant", b =>
+            modelBuilder.Entity("RecruitmentPortal.Identity.AppTenant", b =>
                 {
                     b.Property<int>("AppTenantId")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<string>("Folder");
+
                     b.Property<string>("Name");
+
+                    b.Property<int>("ServicePlanId");
 
                     b.Property<string>("Subdomain");
 
                     b.HasKey("AppTenantId");
 
+                    b.HasIndex("ServicePlanId");
+
                     b.ToTable("Tenants");
+                });
+
+            modelBuilder.Entity("RecruitmentPortal.Identity.ServicePlan", b =>
+                {
+                    b.Property<int>("ServicePlanId")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Name")
+                        .IsRequired();
+
+                    b.HasKey("ServicePlanId");
+
+                    b.ToTable("ServicePlans");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityRoleClaim<string>", b =>
@@ -198,7 +223,7 @@ namespace RecruitmentPortal.Web.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("RecruitmentPortal.Web.Models.ApplicationUser")
+                    b.HasOne("RecruitmentPortal.Identity.ApplicationUser")
                         .WithMany("Claims")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -206,7 +231,7 @@ namespace RecruitmentPortal.Web.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("RecruitmentPortal.Web.Models.ApplicationUser")
+                    b.HasOne("RecruitmentPortal.Identity.ApplicationUser")
                         .WithMany("Logins")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -219,9 +244,25 @@ namespace RecruitmentPortal.Web.Data.Migrations
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("RecruitmentPortal.Web.Models.ApplicationUser")
+                    b.HasOne("RecruitmentPortal.Identity.ApplicationUser")
                         .WithMany("Roles")
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("RecruitmentPortal.Identity.ApplicationUser", b =>
+                {
+                    b.HasOne("RecruitmentPortal.Identity.AppTenant", "AppTenant")
+                        .WithMany()
+                        .HasForeignKey("AppTenantId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("RecruitmentPortal.Identity.AppTenant", b =>
+                {
+                    b.HasOne("RecruitmentPortal.Identity.ServicePlan", "ServicePlan")
+                        .WithMany()
+                        .HasForeignKey("ServicePlanId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
         }
