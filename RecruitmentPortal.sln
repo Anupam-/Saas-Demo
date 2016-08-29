@@ -14,6 +14,8 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "RecruitmentPortal.Web", "sr
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "RecruitmentPortal.Identity", "src\RecruitmentPortal.Identity\RecruitmentPortal.Identity.xproj", "{0234CAD8-B73E-4D8F-A3E2-8A53FF69ACCC}"
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "RecruitmentPortal.Infrastructure", "src\RecruitmentPortal.Infrastructure\RecruitmentPortal.Infrastructure.xproj", "{ECCAF407-05EF-4910-838F-A2178377E681}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,6 +30,10 @@ Global
 		{0234CAD8-B73E-4D8F-A3E2-8A53FF69ACCC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0234CAD8-B73E-4D8F-A3E2-8A53FF69ACCC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0234CAD8-B73E-4D8F-A3E2-8A53FF69ACCC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECCAF407-05EF-4910-838F-A2178377E681}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECCAF407-05EF-4910-838F-A2178377E681}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECCAF407-05EF-4910-838F-A2178377E681}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECCAF407-05EF-4910-838F-A2178377E681}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -35,5 +41,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{C98135F6-A874-41AB-A619-B88C26C14951} = {73B3E9E0-BBFA-4BA6-B19A-3ACEFF0E2045}
 		{0234CAD8-B73E-4D8F-A3E2-8A53FF69ACCC} = {73B3E9E0-BBFA-4BA6-B19A-3ACEFF0E2045}
+		{ECCAF407-05EF-4910-838F-A2178377E681} = {73B3E9E0-BBFA-4BA6-B19A-3ACEFF0E2045}
 	EndGlobalSection
 EndGlobal

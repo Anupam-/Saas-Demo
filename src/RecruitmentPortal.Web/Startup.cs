@@ -10,12 +10,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RecruitmentPortal.Web.Data;
-using RecruitmentPortal.Web.Models;
 using RecruitmentPortal.Web.Services;
 using RecruitmentPortal.Web.SaasKit;
 using RecruitmentPortal.Identity;
 using Microsoft.AspNetCore.Routing;
 using RecruitmentPortal.Web.SaasKit.Middleware;
+using RecruitmentPortal.Identity.Claims;
 
 namespace RecruitmentPortal.Web
 {
@@ -26,6 +26,7 @@ namespace RecruitmentPortal.Web
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile("appInsights.json", optional: true, reloadOnChange: false)
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true);
 
             if (env.IsDevelopment())
@@ -34,7 +35,7 @@ namespace RecruitmentPortal.Web
                 builder.AddUserSecrets();
 
                 // This will push telemetry data through Application Insights pipeline faster, allowing you to view results immediately.
-                builder.AddApplicationInsightsSettings(developerMode: true);
+                builder.AddApplicationInsightsSettings(developerMode: false);
             }
 
             builder.AddEnvironmentVariables();
@@ -62,7 +63,7 @@ namespace RecruitmentPortal.Web
                 //.AddUserManager<TenantEnabledUserManager<ApplicationUser>>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
-
+            
             services.AddMvc();
 
             // Add application services.
@@ -82,7 +83,7 @@ namespace RecruitmentPortal.Web
             {
                 app.UseDeveloperExceptionPage();
                 app.UseDatabaseErrorPage();
-                app.UseBrowserLink();
+                //app.UseBrowserLink();
             }
             else
             {
@@ -105,7 +106,11 @@ namespace RecruitmentPortal.Web
 
             app.UseStaticFiles();
             app.UseIdentity();
-
+            //add claims transformation to read serviceplan
+            app.UseClaimsTransformation(new ClaimsTransformationOptions
+            {
+                Transformer = new ServicePlanClaimsTransformer()
+            });
             // Add external authentication middleware below. To configure them please see http://go.microsoft.com/fwlink/?LinkID=532715
 
             app.UseMvc(routes =>
@@ -114,9 +119,7 @@ namespace RecruitmentPortal.Web
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
-
-
-
+            
             SeedData.Initialize(app.ApplicationServices);
         }
 

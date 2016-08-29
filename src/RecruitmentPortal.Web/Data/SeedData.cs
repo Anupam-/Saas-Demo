@@ -7,6 +7,7 @@ using RecruitmentPortal.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RecruitmentPortal.Web.Data
@@ -18,6 +19,13 @@ namespace RecruitmentPortal.Web.Data
             using (var context = new ApplicationDbContext(
                 provider.GetRequiredService<DbContextOptions<ApplicationDbContext>>()))
             {
+                if(!context.ServicePlans.Any())
+                {
+                    context.ServicePlans.Add(new ServicePlan{ Name = "Basic"});
+                    context.ServicePlans.Add(new ServicePlan{ Name = "Professionell"});
+                }
+                await context.SaveChangesAsync();
+
                 if (!context.Tenants.Any())
                 {
                     context.Tenants.AddRange(
@@ -25,16 +33,19 @@ namespace RecruitmentPortal.Web.Data
                         {
                             Name = "ACME",
                             Subdomain = "acme",
-                            Folder = "acme"
+                            Folder = "acme",
+                            ServicePlanId = 1
                         },
                         new AppTenant
                         {
                             Name = "DevTenant 1",
                             Subdomain = "dev",
-                            Folder = "dev"
+                            Folder = "dev",
+                            ServicePlanId = 2
                         });
                 }
 
+                await context.SaveChangesAsync();
                 var roleStore = new RoleStore<IdentityRole>(context);
                 foreach (var role in new string[] { "Owner", "Administrator", "Manager", "Editor", "Applicant", "HR" })
                 {
@@ -43,21 +54,28 @@ namespace RecruitmentPortal.Web.Data
                         await roleStore.CreateAsync(new IdentityRole(role));
                     }
                 }
-                context.SaveChanges();
-                
+
+                await context.SaveChangesAsync();
                 var admin = new ApplicationUser
                 {
-                    AppTenantId = 1,
-                    Email = "marco.heinrich@outlook.com",
-                    UserName = "heinrichm",
-                    EmailConfirmed = true
+                    AppTenantId = 3,
+                    Email = "foobar3@outlook.com",
+                    UserName = "foobar3",
+                    EmailConfirmed = true,
+                    NormalizedUserName = "FOOBAR3",
+                    NormalizedEmail = "FOOBAR3@OUTLOOK.COM"
                 };
 
-                
-                if(!context.Users.Any(u => u.Email == admin.Email))
+
+                if (!context.Users.Any(u => u.Email == admin.Email))
                 {
-                    var userManager = provider.GetRequiredService<UserManager<ApplicationUser>>();
-                    await userManager.CreateAsync(admin, "Helpme123#");
+                    var userStore = new TenantEnabledUserStore(context, new AppTenant
+                    {
+                        AppTenantId = 1
+                    });
+                    await userStore.SetPasswordHashAsync(admin, new PasswordHasher<ApplicationUser>().HashPassword(admin, "Helpme123#"), default(CancellationToken));
+                    await userStore.SetSecurityStampAsync(admin, Guid.NewGuid().ToString("D"), default(CancellationToken));
+                    await userStore.CreateAsync(admin, default(CancellationToken));
                 }
                 
                 context.SaveChanges();

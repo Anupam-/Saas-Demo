@@ -10,7 +10,6 @@ namespace RecruitmentPortal.Web.Controllers
 {
     public class HomeController : Controller
     {
-        private AppTenant _tenant;
 
         public IActionResult Index()
         {
