@@ -14,36 +14,36 @@ namespace RecruitmentPortal.Web.Data
 {
     public static class SeedData
     {
-        public async static void Initialize(IServiceProvider provider)
+        public static async void Initialize(IServiceProvider provider)
         {
             using (var context = new ApplicationDbContext(
                 provider.GetRequiredService<DbContextOptions<ApplicationDbContext>>()))
             {
-                if(!context.ServicePlans.Any())
+                if(!context.ServicePlans.Any() && !context.Tenants.Any())
                 {
-                    context.ServicePlans.Add(new ServicePlan{ Name = "Basic"});
-                    context.ServicePlans.Add(new ServicePlan{ Name = "Professionell"});
+                    var basicPlan = new ServicePlan {Name = "Basic"};
+                    var proPlan = new ServicePlan {Name = "Professionell"};
+
+                    var acmeTenant = new AppTenant
+                    {
+                        Name = "ACME",
+                        Subdomain = "acme",
+                        Folder = "acme"
+                    };
+                    var devTenant = new AppTenant
+                    {
+                        Name = "DevTenant 1",
+                        Subdomain = "dev",
+                        Folder = "dev"
+                    };
+                    acmeTenant.ServicePlan = basicPlan;
+                    devTenant.ServicePlan = proPlan;
+
+                    context.Tenants.AddRange(acmeTenant, devTenant);
                 }
                 await context.SaveChangesAsync();
 
-                if (!context.Tenants.Any())
-                {
-                    context.Tenants.AddRange(
-                        new AppTenant
-                        {
-                            Name = "ACME",
-                            Subdomain = "acme",
-                            Folder = "acme",
-                            ServicePlanId = 1
-                        },
-                        new AppTenant
-                        {
-                            Name = "DevTenant 1",
-                            Subdomain = "dev",
-                            Folder = "dev",
-                            ServicePlanId = 2
-                        });
-                }
+                
 
                 await context.SaveChangesAsync();
                 var roleStore = new RoleStore<IdentityRole>(context);
@@ -58,7 +58,7 @@ namespace RecruitmentPortal.Web.Data
                 await context.SaveChangesAsync();
                 var admin = new ApplicationUser
                 {
-                    AppTenantId = 3,
+                    AppTenantId = 1,
                     Email = "foobar3@outlook.com",
                     UserName = "foobar3",
                     EmailConfirmed = true,
@@ -66,7 +66,10 @@ namespace RecruitmentPortal.Web.Data
                     NormalizedEmail = "FOOBAR3@OUTLOOK.COM"
                 };
 
-
+                /*
+                 *we need to set up the USerStore raw, without the manager, because there's no request and therefore no AppTenant. We create a Mock instance and inject
+                 * this one into the userstore, so we can create a testuser
+                 */
                 if (!context.Users.Any(u => u.Email == admin.Email))
                 {
                     var userStore = new TenantEnabledUserStore(context, new AppTenant

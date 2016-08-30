@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -64,11 +65,22 @@ namespace RecruitmentPortal.Web
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
             
+            //add new Claims policies
+            services.AddAuthorization(opt =>
+            {
+                //if the tenant is on at least basic, he can enter this.
+                opt.AddPolicy("BasicServicePlan", policy => policy.RequireClaim("ServicePlan"));
+                //tenants on prof can enter everything marked with Professionell
+                opt.AddPolicy("ProfServicePlan", policy => policy.RequireClaim("ServicePlan", "Professionell"));
+            });
+
+
             services.AddMvc();
 
             // Add application services.
             services.AddTransient<IEmailSender, AuthMessageSender>();
             services.AddTransient<ISmsSender, AuthMessageSender>();
+            services.AddTransient<IClaimsTransformer, ServicePlanClaimsTransformer>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -111,7 +123,7 @@ namespace RecruitmentPortal.Web
             {
                 Transformer = new ServicePlanClaimsTransformer()
             });
-            // Add external authentication middleware below. To configure them please see http://go.microsoft.com/fwlink/?LinkID=532715
+            
 
             app.UseMvc(routes =>
             {

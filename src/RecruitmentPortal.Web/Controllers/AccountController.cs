@@ -440,6 +440,11 @@ namespace RecruitmentPortal.Web.Controllers
             }
         }
 
+        public ActionResult AccessDenied()
+        {
+            return View();
+        }
+
         #region Helpers
 
         private void AddErrors(IdentityResult result)

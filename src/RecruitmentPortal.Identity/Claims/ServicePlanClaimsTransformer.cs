@@ -4,31 +4,32 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
+using SaasKit.Multitenancy;
+using Microsoft.EntityFrameworkCore;
 
 namespace RecruitmentPortal.Identity.Claims
 {
     public class ServicePlanClaimsTransformer : IClaimsTransformer
     {
-        private AppTenant _appTenant;
-        private ApplicationDbContext _context;
-        private ClaimsPrincipal _principal;
-
-        public ServicePlanClaimsTransformer(ClaimsPrincipal principal, ApplicationDbContext context, AppTenant tenant)
-        {
-            _principal = principal;
-            _context = context;
-            _appTenant = tenant;
-        }
-
         public Task<ClaimsPrincipal> TransformAsync(ClaimsTransformationContext context)
         {
-            if(_principal.Identity.IsAuthenticated)
+            //retrieve an instance of ApplicationDbContext
+            var db = (ApplicationDbContext)context.Context.RequestServices.GetService(typeof(ApplicationDbContext));
+            
+            var identity = context.Principal.Identity;
+            var principal = context.Principal;
+            //get tenantContext from HttpContext
+            var tenantContext = context.Context.GetTenantContext<AppTenant>();
+
+            if(identity.IsAuthenticated)
             {
-                //get from db
-                var servicePlan = _context.Tenants.FirstOrDefault(t => t.AppTenantId == _appTenant.AppTenantId).ServicePlan;
-                (_principal.Identity as ClaimsIdentity).AddClaim(new Claim("ServicePlan", servicePlan.Name));
+                //get Serviceplan from store; possible NullreferenceException.
+                var servicePlan = db.Tenants.Include(x => x.ServicePlan).FirstOrDefault(t => t.AppTenantId == tenantContext.Tenant.AppTenantId).ServicePlan;
+                //add new claim
+                ((ClaimsIdentity)principal.Identity).AddClaim(new Claim("ServicePlan", servicePlan.Name));
             }
-            return Task.FromResult(_principal);
+            return Task.FromResult(principal);
         }
     }
 }

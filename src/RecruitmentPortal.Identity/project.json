@@ -1,12 +1,13 @@
 {
   "version": "1.0.0-*",
 
-  "dependencies": {
-    "Microsoft.AspNet.Identity.EntityFramework": "2.2.1",
-    "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "1.0.0",
-    "Microsoft.EntityFrameworkCore.SqlServer": "1.0.0",
-    "System.ComponentModel.Annotations": "4.1.0"
-  },
+    "dependencies": {
+        "Microsoft.AspNet.Identity.EntityFramework": "2.2.1",
+        "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "1.0.0",
+        "Microsoft.EntityFrameworkCore.SqlServer": "1.0.0",
+        "SaasKit.Multitenancy": "1.1.4",
+        "System.ComponentModel.Annotations": "4.1.0"
+    },
 
   "frameworks": {
     "net461": {
