@@ -88,9 +88,7 @@ namespace SaaSDemo.Web
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
-
-            app.UseApplicationInsightsRequestTelemetry();
-
+          
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -101,9 +99,7 @@ namespace SaaSDemo.Web
             {
                 app.UseExceptionHandler("/Home/Error");
             }
-
-            app.UseApplicationInsightsExceptionTelemetry();
-
+             
             app.UseMultitenancy<AppTenant>();
 
             var routeBuilder = new RouteBuilder(app);
